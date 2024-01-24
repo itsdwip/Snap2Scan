@@ -1,8 +1,8 @@
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:share/share.dart';
 
 class ScanPage extends StatefulWidget {
   const ScanPage({super.key});
@@ -14,7 +14,10 @@ class ScanPage extends StatefulWidget {
 class _ScanPageState extends State<ScanPage> {
   @override
   Widget build(BuildContext context) {
-    MobileScannerController cameraController = MobileScannerController();
+    MobileScannerController cameraController = MobileScannerController(
+      detectionSpeed: DetectionSpeed.noDuplicates,
+      returnImage: true,
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -61,16 +64,10 @@ class _ScanPageState extends State<ScanPage> {
         ],
       ),
       body: MobileScanner(
-        controller: MobileScannerController(
-          detectionSpeed: DetectionSpeed.noDuplicates,
-          returnImage: true,
-        ),
+        controller: cameraController,
         onDetect: (capture) {
           final List<Barcode> barcodes = capture.barcodes;
           final Uint8List? image = capture.image;
-          for (final barcode in barcodes) {
-            debugPrint('Barcode found! ${barcode.rawValue}');
-          }
           if (image != null) {
             showDialog(
               context: context,
@@ -85,27 +82,53 @@ class _ScanPageState extends State<ScanPage> {
                   ),
                   clipBehavior: Clip.hardEdge,
                   actions: [
-                    ElevatedButton.icon(
-                      label: Text('Copy'),
-                      icon: Icon(Icons.copy),
-                      onPressed: () => Clipboard.setData(
-                        ClipboardData(text: barcodes.first.rawValue ?? ""),
+                    FittedBox(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          ElevatedButton.icon(
+                            label: Text('Copy'),
+                            icon: Icon(Icons.copy),
+                            onPressed: () => Clipboard.setData(
+                              ClipboardData(
+                                  text: barcodes.first.rawValue ?? ""),
+                            ),
+                          ),
+                          SizedBox(
+                            width: 5,
+                          ),
+                          ElevatedButton.icon(
+                            icon: Icon(Icons.public),
+                            label: Text('Search'),
+                            onPressed: () async {
+                              if (barcodes.first.rawValue != null) {
+                                try {
+                                  await launchUrl(Uri.parse(
+                                      barcodes.first.rawValue.toString()));
+                                } catch (error) {
+                                  print("Error opening URL: $error");
+                                }
+                              }
+                            },
+                          ),
+                          // Share button
+                        ],
                       ),
                     ),
-                    ElevatedButton.icon(
-                      icon: Icon(Icons.link),
-                      label: Text('Open in the browser'),
-                      onPressed: () async {
-                        if (barcodes.first.rawValue != null) {
-                          try {
-                            await launchUrl(
-                                Uri.parse(barcodes.first.rawValue.toString()));
-                          } catch (error) {
-                            print("Error opening URL: $error");
-                          }
-                        }
-                      },
-                    )
+                    FittedBox(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          ElevatedButton.icon(
+                            icon: Icon(Icons.share),
+                            label: Text('Share'),
+                            onPressed: () async {
+                              await Share.share(barcodes.first.rawValue ?? "");
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
                 );
               },

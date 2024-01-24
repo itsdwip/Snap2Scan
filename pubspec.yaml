@@ -39,6 +39,7 @@ dependencies:
   pretty_qr_code: ^3.1.0
   mobile_scanner: ^3.5.6
   url_launcher: ^6.2.4
+  share: ^2.0.4
 
 dev_dependencies:
   flutter_test:
