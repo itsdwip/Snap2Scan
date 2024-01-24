@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:qr_code_scanner_and_generator/pages/home.dart';
 
-void main() {
+void main() async {
   runApp(const MyApp());
 }
 
