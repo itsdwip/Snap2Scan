@@ -68,15 +68,23 @@ class HomePage extends StatelessWidget {
                 ),
                 Column(
                   children: [
-                    HomePageCard(
-                      icon: Icons.qr_code_rounded,
-                      title: 'UPI QR',
-                      onTap: () {
-                        Navigator.of(context)
-                            .push(MaterialPageRoute(builder: (context) {
-                          return const UpiQr();
-                        }));
-                      },
+                    Badge(
+                      offset: Offset.zero,
+                      label: const Text('New'),
+                      isLabelVisible: true,
+                      alignment: Alignment.topLeft,
+                      backgroundColor: Colors.blue,
+                      largeSize: 30,
+                      child: HomePageCard(
+                        icon: Icons.qr_code_rounded,
+                        title: 'UPI QR',
+                        onTap: () {
+                          Navigator.of(context)
+                              .push(MaterialPageRoute(builder: (context) {
+                            return const UpiQr();
+                          }));
+                        },
+                      ),
                     ),
                   ],
                 ),
